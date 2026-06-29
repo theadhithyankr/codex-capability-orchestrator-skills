@@ -258,7 +258,7 @@ Use this repository if you build or maintain Codex skills, agent tool registries
 
 ## Status
 
-This repository contains a complete, verified `v0.1.0` release of the `capability-orchestrator` Agent Skills package.
+This repository contains a complete, verified `v0.2.0` release of the `capability-orchestrator` Agent Skills package.
 
 ## Suggested GitHub Topics
 
