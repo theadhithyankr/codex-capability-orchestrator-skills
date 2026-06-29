@@ -21,7 +21,7 @@ from scan_global_skills import scan_global_skills, default_global_root, print_ta
 
 
 def run_python(script: str, args: Sequence[str]) -> int:
-    return subprocess.call([PYTHON, str(SCRIPT_DIR / script), *args], cwd=ROOT)
+    return subprocess.call([PYTHON, str(SCRIPT_DIR / script), *args], cwd=Path.cwd())
 
 
 def cmd_scan_global(args: argparse.Namespace) -> int:
