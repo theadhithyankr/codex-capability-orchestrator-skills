@@ -55,8 +55,15 @@ def detect_project_stack(project_root: Path) -> dict[str, Any]:
     if package_json:
         if _package_has(package_json, "next"):
             detections.append({"stack": "nextjs", "confidence": 1.0, "evidence": ["package.json next"]})
+        if _package_has(package_json, "tailwindcss", "@tailwindcss/postcss", "@tailwindcss/vite"):
+            detections.append({"stack": "tailwindcss", "confidence": 0.95, "evidence": ["package.json tailwindcss"]})
+        if _package_has(package_json, "@supabase/supabase-js", "@supabase/ssr", "supabase"):
+            detections.append({"stack": "supabase", "confidence": 0.95, "evidence": ["package.json supabase"]})
         if _package_has(package_json, "react-native", "expo"):
-            detections.append({"stack": "expo react native", "confidence": 0.95, "evidence": ["package.json expo/react-native"]})
+            if _package_has(package_json, "expo"):
+                detections.append({"stack": "expo", "confidence": 0.95, "evidence": ["package.json expo"]})
+            if _package_has(package_json, "react-native"):
+                detections.append({"stack": "react-native", "confidence": 0.95, "evidence": ["package.json react-native"]})
         if _package_has(package_json, "react") and not any(item["stack"] == "nextjs" for item in detections):
             detections.append({"stack": "react", "confidence": 0.8, "evidence": ["package.json react"]})
         if _package_has(package_json, "vue", "nuxt"):

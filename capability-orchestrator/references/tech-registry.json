@@ -1,0 +1,165 @@
+{
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "id": "nextjs",
+      "display_name": "Next.js",
+      "aliases": ["next", "nextjs", "next.js"],
+      "docs": [
+        {"title": "Next.js Docs", "url": "https://nextjs.org/docs"}
+      ]
+    },
+    {
+      "id": "tailwindcss",
+      "display_name": "Tailwind CSS",
+      "aliases": ["tailwind", "tailwindcss", "tailwind css"],
+      "docs": [
+        {"title": "Tailwind CSS Docs", "url": "https://tailwindcss.com/docs"}
+      ]
+    },
+    {
+      "id": "supabase",
+      "display_name": "Supabase",
+      "aliases": ["supabase"],
+      "docs": [
+        {"title": "Supabase Docs", "url": "https://supabase.com/docs"}
+      ]
+    },
+    {
+      "id": "shopify",
+      "display_name": "Shopify",
+      "aliases": ["shopify", "shopify theme", "shopify themes"],
+      "docs": [
+        {"title": "Shopify Themes Docs", "url": "https://shopify.dev/docs/storefronts/themes"}
+      ]
+    },
+    {
+      "id": "liquid",
+      "display_name": "Liquid",
+      "aliases": ["liquid", "shopify liquid", "liquid theme"],
+      "docs": [
+        {"title": "Liquid Reference", "url": "https://shopify.dev/docs/api/liquid"}
+      ]
+    },
+    {
+      "id": "react",
+      "display_name": "React",
+      "aliases": ["react", "reactjs", "react.js", "react-dom"],
+      "docs": [
+        {"title": "React Docs", "url": "https://react.dev/"}
+      ]
+    },
+    {
+      "id": "typescript",
+      "display_name": "TypeScript",
+      "aliases": ["typescript", "ts"],
+      "docs": [
+        {"title": "TypeScript Docs", "url": "https://www.typescriptlang.org/docs/"}
+      ]
+    },
+    {
+      "id": "laravel",
+      "display_name": "Laravel",
+      "aliases": ["laravel"],
+      "docs": [
+        {"title": "Laravel Docs", "url": "https://laravel.com/docs"}
+      ]
+    },
+    {
+      "id": "django",
+      "display_name": "Django",
+      "aliases": ["django"],
+      "docs": [
+        {"title": "Django Docs", "url": "https://docs.djangoproject.com/"}
+      ]
+    },
+    {
+      "id": "fastapi",
+      "display_name": "FastAPI",
+      "aliases": ["fastapi", "fast api"],
+      "docs": [
+        {"title": "FastAPI Docs", "url": "https://fastapi.tiangolo.com/"}
+      ]
+    },
+    {
+      "id": "rails",
+      "display_name": "Ruby on Rails",
+      "aliases": ["rails", "ruby on rails"],
+      "docs": [
+        {"title": "Ruby on Rails Guides", "url": "https://guides.rubyonrails.org/"}
+      ]
+    },
+    {
+      "id": "expo",
+      "display_name": "Expo",
+      "aliases": ["expo"],
+      "docs": [
+        {"title": "Expo Docs", "url": "https://docs.expo.dev/"}
+      ]
+    },
+    {
+      "id": "react-native",
+      "display_name": "React Native",
+      "aliases": ["react native", "react-native", "reactnative"],
+      "docs": [
+        {"title": "React Native Docs", "url": "https://reactnative.dev/docs/getting-started"}
+      ]
+    },
+    {
+      "id": "flutter",
+      "display_name": "Flutter",
+      "aliases": ["flutter"],
+      "docs": [
+        {"title": "Flutter Docs", "url": "https://docs.flutter.dev/"}
+      ]
+    },
+    {
+      "id": "go",
+      "display_name": "Go",
+      "aliases": ["go", "golang"],
+      "docs": [
+        {"title": "Go Docs", "url": "https://go.dev/doc/"}
+      ]
+    },
+    {
+      "id": "rust",
+      "display_name": "Rust",
+      "aliases": ["rust"],
+      "docs": [
+        {"title": "Rust Docs", "url": "https://www.rust-lang.org/learn"}
+      ]
+    },
+    {
+      "id": "spring-boot",
+      "display_name": "Spring Boot",
+      "aliases": ["spring boot", "spring-boot", "spring"],
+      "docs": [
+        {"title": "Spring Boot Reference", "url": "https://docs.spring.io/spring-boot/"}
+      ]
+    },
+    {
+      "id": "vite",
+      "display_name": "Vite",
+      "aliases": ["vite"],
+      "docs": [
+        {"title": "Vite Guide", "url": "https://vite.dev/guide/"}
+      ]
+    },
+    {
+      "id": "vue",
+      "display_name": "Vue",
+      "aliases": ["vue", "vue.js", "vuejs"],
+      "docs": [
+        {"title": "Vue Docs", "url": "https://vuejs.org/guide/introduction.html"}
+      ]
+    },
+    {
+      "id": "angular",
+      "display_name": "Angular",
+      "aliases": ["angular"],
+      "docs": [
+        {"title": "Angular Docs", "url": "https://angular.dev/overview"}
+      ]
+    }
+  ]
+}

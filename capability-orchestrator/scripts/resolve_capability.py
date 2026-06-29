@@ -15,11 +15,14 @@ from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+SKILL_ROOT = SCRIPT_DIR.parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from inspect_skill import inspect_skill  # noqa: E402
 from scan_global_skills import default_global_root, discover_skill_dirs  # noqa: E402
+
+TOKEN_STOPWORDS = {"js", "ts", "css"}
 
 
 @dataclass(frozen=True)
@@ -40,11 +43,30 @@ class Candidate:
 
 def tokenize(text: str) -> set[str]:
     chars = [char.lower() if char.isalnum() else " " for char in text]
-    return {part for part in "".join(chars).split() if len(part) > 1}
+    return {part for part in "".join(chars).split() if len(part) > 1 and part not in TOKEN_STOPWORDS}
+
+
+def expand_query(query: str) -> str:
+    return " ".join(query_phrases(query))
+
+
+def query_phrases(query: str) -> list[str]:
+    registry_path = SKILL_ROOT / "references" / "tech-registry.json"
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return [query]
+    for item in registry.get("capabilities", []):
+        capability_id = str(item.get("id", "")).lower()
+        aliases = [str(alias) for alias in item.get("aliases", [])]
+        if query.lower() == capability_id or query.lower() in [alias.lower() for alias in aliases]:
+            return [query, str(item.get("display_name", "")), *aliases]
+    return [query]
 
 
 def relevance(query: str, report: dict[str, Any]) -> float:
-    query_tokens = tokenize(query)
+    expanded_query = expand_query(query)
+    query_tokens = tokenize(expanded_query)
     if not query_tokens:
         return 0.0
     frontmatter = report["frontmatter"]
@@ -61,7 +83,14 @@ def relevance(query: str, report: dict[str, Any]) -> float:
     )
     haystack_tokens = tokenize(haystack)
     overlap = len(query_tokens & haystack_tokens) / len(query_tokens)
-    exact_bonus = 0.25 if query.lower() in haystack.lower() else 0.0
+    haystack_lower = haystack.lower()
+    exact_bonus = 0.0
+    for phrase in query_phrases(query):
+        phrase_lower = phrase.lower()
+        is_specific_phrase = any(separator in phrase_lower for separator in (" ", ".", "-")) or phrase_lower == query.lower()
+        if phrase_lower and is_specific_phrase and phrase_lower in haystack_lower:
+            exact_bonus = 0.25
+            break
     return round(min(1.0, overlap + exact_bonus), 6)
 
 

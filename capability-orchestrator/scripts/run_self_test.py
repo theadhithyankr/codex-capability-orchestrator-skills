@@ -149,9 +149,33 @@ def create_fixtures(root: Path) -> Path:
         examples / "django-skill" / "SKILL.md",
         "---\nname: django-workflow\ndescription: Django Codex skill for models, migrations, views, templates, Django REST Framework, tests, management commands, and deployment checks.\n---\n\n# Django\n",
     )
+    write(
+        examples / "tailwind-skill" / "SKILL.md",
+        "---\nname: tailwind-workflow\ndescription: Tailwind CSS Codex skill for utility classes, responsive layout, design tokens, components, and styling checks.\n---\n\n# Tailwind\n",
+    )
+    write(
+        examples / "supabase-skill" / "SKILL.md",
+        "---\nname: supabase-workflow\ndescription: Supabase Codex skill for auth, database schema, row level security, edge functions, storage, and client SDK usage.\n---\n\n# Supabase\n",
+    )
     write(examples / "projects" / "nextjs" / "package.json", json.dumps({"dependencies": {"next": "^15.0.0"}}))
+    write(
+        examples / "projects" / "nextjs-full" / "package.json",
+        json.dumps(
+            {
+                "dependencies": {
+                    "next": "^15.0.0",
+                    "@supabase/supabase-js": "^2.0.0",
+                },
+                "devDependencies": {"tailwindcss": "^4.0.0"},
+            }
+        ),
+    )
     write(examples / "projects" / "django" / "requirements.txt", "django==5.0.0\n")
     write(examples / "projects" / "django" / "manage.py", "print('django')\n")
+    write(examples / "projects" / "laravel" / "composer.json", json.dumps({"require": {"laravel/framework": "^11.0"}}))
+    write(examples / "projects" / "laravel" / "artisan", "#!/usr/bin/env php\n")
+    write(examples / "projects" / "flutter" / "pubspec.yaml", "name: demo\n\ndependencies:\n  flutter:\n    sdk: flutter\n")
+    write(examples / "projects" / "go" / "go.mod", "module example.com/demo\n\ngo 1.22\n")
     return examples
 
 
@@ -338,6 +362,39 @@ def main() -> int:
         assert isinstance(detected, dict)
         assert detected["detected"][0]["stack"] == "nextjs"
 
+        laravel_detected = load_stdout_json(
+            run([PYTHON, str(SCRIPTS / "detect_project_stack.py"), str(examples / "projects" / "laravel")])
+        )
+        assert isinstance(laravel_detected, dict)
+        assert laravel_detected["detected"][0]["stack"] == "laravel"
+
+        flutter_detected = load_stdout_json(
+            run([PYTHON, str(SCRIPTS / "detect_project_stack.py"), str(examples / "projects" / "flutter")])
+        )
+        assert isinstance(flutter_detected, dict)
+        assert flutter_detected["detected"][0]["stack"] == "flutter"
+
+        go_detected = load_stdout_json(
+            run([PYTHON, str(SCRIPTS / "detect_project_stack.py"), str(examples / "projects" / "go")])
+        )
+        assert isinstance(go_detected, dict)
+        assert go_detected["detected"][0]["stack"] == "go"
+
+        extracted = load_stdout_json(
+            run(
+                [
+                    PYTHON,
+                    str(SCRIPTS / "extract_capabilities.py"),
+                    str(examples / "projects" / "nextjs-full"),
+                    "--request",
+                    "Create a Next.js product with Tailwind CSS and Supabase",
+                ]
+            )
+        )
+        assert isinstance(extracted, dict)
+        extracted_ids = {item["id"] for item in extracted["capabilities"]}
+        assert {"nextjs", "tailwindcss", "supabase"}.issubset(extracted_ids)
+
         project_resolved = load_stdout_json(
             run(
                 [
@@ -374,6 +431,140 @@ def main() -> int:
         assert isinstance(django_resolved, dict)
         assert django_resolved["project"]["detected"][0]["stack"] == "django"
         assert django_resolved["resolutions"][0]["winner"]["name"] == "django-workflow"
+
+        install_rejected = run(
+            [
+                PYTHON,
+                str(SCRIPTS / "prepare_project.py"),
+                str(examples / "projects" / "nextjs-full"),
+                "--request",
+                "Create a Next.js product with Tailwind CSS and Supabase",
+                "--root",
+                str(examples),
+                "--global-root",
+                "missing-global-skills",
+                "--install",
+                "--json",
+            ],
+            expect=2,
+        )
+        assert "installation requires --yes" in install_rejected.stderr
+
+        prepared = load_stdout_json(
+            run(
+                [
+                    PYTHON,
+                    str(SCRIPTS / "prepare_project.py"),
+                    str(examples / "projects" / "nextjs-full"),
+                    "--request",
+                    "Create a Next.js product with Tailwind CSS and Supabase",
+                    "--root",
+                    str(examples),
+                    "--global-root",
+                    "missing-global-skills",
+                    "--json",
+                ]
+            )
+        )
+        assert isinstance(prepared, dict)
+        prepared_ids = {item["id"] for item in prepared["detected_capabilities"]}
+        assert {"nextjs", "tailwindcss", "supabase"}.issubset(prepared_ids)
+        assert Path(prepared["manifest_path"]).is_file()
+        assert (examples / "projects" / "nextjs-full" / ".codex" / "context" / "docs" / "nextjs.json").is_file()
+        winners = {item["capability"]: item["winner"]["name"] for item in prepared["skill_resolutions"] if item["winner"]}
+        assert winners["nextjs"] == "nextjs-workflow"
+        assert winners["tailwindcss"] == "tailwind-workflow"
+        assert winners["supabase"] == "supabase-workflow"
+
+        docs_only = load_stdout_json(
+            run(
+                [
+                    PYTHON,
+                    str(SCRIPTS / "codex_skills.py"),
+                    "prepare-project",
+                    str(examples / "projects" / "nextjs-full"),
+                    "--request",
+                    "UnknownStack with Next.js",
+                    "--root",
+                    str(examples),
+                    "--global-root",
+                    "missing-global-skills",
+                    "--docs-only",
+                    "--json",
+                ]
+            )
+        )
+        assert isinstance(docs_only, dict)
+        assert docs_only["skill_resolutions"] == []
+
+        prompt_style = load_stdout_json(
+            run(
+                [
+                    PYTHON,
+                    str(SCRIPTS / "codex_skills.py"),
+                    "prepare-project",
+                    str(examples / "projects" / "nextjs-full"),
+                    "Create",
+                    "a",
+                    "Next.js",
+                    "product",
+                    "with",
+                    "Tailwind",
+                    "CSS",
+                    "and",
+                    "Supabase",
+                    "--root",
+                    str(examples),
+                    "--global-root",
+                    "missing-global-skills",
+                    "--json",
+                ]
+            )
+        )
+        assert isinstance(prompt_style, dict)
+        assert prompt_style["request"] == "Create a Next.js product with Tailwind CSS and Supabase"
+        prompt_ids = {item["id"] for item in prompt_style["detected_capabilities"]}
+        assert {"nextjs", "tailwindcss", "supabase"}.issubset(prompt_ids)
+
+        shopify_prompt = load_stdout_json(
+            run(
+                [
+                    PYTHON,
+                    str(SCRIPTS / "codex_skills.py"),
+                    "prepare-project",
+                    str(examples / "projects" / "nextjs-full"),
+                    "create",
+                    "a",
+                    "website",
+                    "using",
+                    "Shopify",
+                    "Liquid",
+                    "theme",
+                    "--docs-only",
+                    "--json",
+                ]
+            )
+        )
+        assert isinstance(shopify_prompt, dict)
+        shopify_ids = {item["id"] for item in shopify_prompt["detected_capabilities"]}
+        assert {"shopify", "liquid"}.issubset(shopify_ids)
+        docs_written = {item["capability"] for item in shopify_prompt["docs"]["written"]}
+        assert {"shopify", "liquid"}.issubset(docs_written)
+
+        unknown_docs = load_stdout_json(
+            run(
+                [
+                    PYTHON,
+                    str(SCRIPTS / "fetch_docs_context.py"),
+                    str(examples / "projects" / "nextjs-full"),
+                    "unknownstack",
+                    "--pretty",
+                ]
+            )
+        )
+        assert isinstance(unknown_docs, dict)
+        assert unknown_docs["written"] == []
+        assert "use --allow-docs-web" in unknown_docs["warnings"][0]
 
     print("self-test ok")
     return 0

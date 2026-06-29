@@ -44,3 +44,32 @@ Use this skill to close a capability gap without inventing tool behavior. Prefer
 - Use `scripts/synthesize_tool_harness.py` to build a sandbox-run manifest for generated Python or Node.js tools and tests.
 - Use `scripts/resolve_capability.py` to search installed/project skills, optionally inspect GitHub candidates, rank validated matches, and install the best candidate only when installation is explicitly confirmed.
 - Use `scripts/detect_project_stack.py` and `scripts/resolve_project.py` when the user wants automatic stack-aware skill resolution for a project without naming the framework.
+- Use `scripts/prepare_project.py` when a prompt asks to build with named frameworks, libraries, SDKs, databases, UI kits, or deployment platforms. It extracts capabilities from the request and project files, resolves matching skills, writes `.codex/context/manifest.json`, and records official docs provenance under `.codex/context/docs/`.
+
+## Project Preparation
+
+When the user asks in normal English to build, update, or prepare a project with named frameworks, libraries, SDKs, databases, UI kits, deployment platforms, or unknown stack terms, treat that user message as the source prompt and run project preparation before implementation. Do this internally; do not ask the user to type `codex-skills` commands.
+
+For a prompt like “create a website using Shopify Liquid theme”, Codex should run the equivalent of this itself from the project root:
+
+```powershell
+.\codex-skills.ps1 prepare-project . create a website using Shopify Liquid theme
+```
+
+Then read `.codex/context/manifest.json` and relevant `.codex/context/docs/*.json` before building. If the prompt includes unknown stack terms and docs context is needed, run the same preparation with `--allow-docs-web`; network access may require approval from the execution environment. Use `--allow-github` only when the user asks to search external skill candidates. Use `--install --yes` only when the user explicitly asks to install skills.
+
+Manual safe default, if a user asks for the command:
+
+```powershell
+.\codex-skills.ps1 prepare-project . Create a Next.js product with Tailwind CSS and Supabase
+```
+
+Options:
+
+- Add `--allow-github` only when external GitHub discovery is allowed.
+- Add `--allow-docs-web` only when external docs discovery is allowed for unknown stacks.
+- Add `--install --yes` only when the user explicitly wants winning skills installed.
+- Use `--docs-only` to write docs provenance without resolving skills.
+- Use `--skills-only` to resolve skills without writing docs context.
+
+The context manifest must record detected capabilities, sources, timestamps, docs provenance, failed lookups, warnings, skill resolutions, and installed skill paths. Unknown capabilities are allowed. If `--allow-docs-web` is not set, missing docs must be recorded as warnings instead of fabricated context. If web discovery is enabled, record reachable HTTPS documentation candidates as `web-discovered` and do not present them as registry-approved official docs.

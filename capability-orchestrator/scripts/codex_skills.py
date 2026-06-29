@@ -113,6 +113,42 @@ def cmd_resolve_project(args: argparse.Namespace) -> int:
     return run_python("resolve_project.py", cli_args)
 
 
+def cmd_prepare_project(args: argparse.Namespace) -> int:
+    cli_args = [args.project_root]
+    cli_args.extend(args.prompt)
+    if args.request:
+        cli_args.extend(["--request", args.request])
+    for root in args.root:
+        cli_args.extend(["--root", root])
+    if args.global_root:
+        cli_args.extend(["--global-root", args.global_root])
+    if args.include_system:
+        cli_args.append("--include-system")
+    if args.allow_github:
+        cli_args.append("--allow-github")
+    cli_args.extend(["--github-limit", str(args.github_limit)])
+    if args.install:
+        cli_args.append("--install")
+    cli_args.extend(["--scope", args.scope])
+    if args.target_root:
+        cli_args.extend(["--target-root", args.target_root])
+    if args.yes:
+        cli_args.append("--yes")
+    if args.docs_only:
+        cli_args.append("--docs-only")
+    if args.skills_only:
+        cli_args.append("--skills-only")
+    if args.allow_docs_web:
+        cli_args.append("--allow-docs-web")
+    cli_args.extend(["--docs-web-limit", str(args.docs_web_limit)])
+    cli_args.extend(["--docs-timeout", str(args.docs_timeout)])
+    if args.json:
+        cli_args.append("--json")
+    if args.pretty:
+        cli_args.append("--pretty")
+    return run_python("prepare_project.py", cli_args)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="codex-skills",
@@ -176,6 +212,31 @@ def build_parser() -> argparse.ArgumentParser:
     resolve_project.add_argument("--json", action="store_true", help="Emit JSON")
     resolve_project.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
     resolve_project.set_defaults(func=cmd_resolve_project)
+
+    prepare_project = subparsers.add_parser(
+        "prepare-project",
+        help="Extract capabilities, resolve skills, and write project Codex context",
+    )
+    prepare_project.add_argument("project_root", nargs="?", default=".", help="Project root to prepare")
+    prepare_project.add_argument("prompt", nargs="*", help="English build request to mine for technologies")
+    prepare_project.add_argument("--request", default="", help="User build request containing desired technologies")
+    prepare_project.add_argument("--root", action="append", default=[], help="Additional skills root to search")
+    prepare_project.add_argument("--global-root", help="Global Codex skills root")
+    prepare_project.add_argument("--include-system", action="store_true", help="Include built-in .system skills")
+    prepare_project.add_argument("--allow-github", action="store_true", help="Search GitHub with gh")
+    prepare_project.add_argument("--github-limit", type=int, default=10, help="Maximum GitHub repositories to inspect")
+    prepare_project.add_argument("--install", action="store_true", help="Install winning validated candidates")
+    prepare_project.add_argument("--scope", choices=["global", "local"], default="local", help="Install destination scope")
+    prepare_project.add_argument("--target-root", help="Override skills install root")
+    prepare_project.add_argument("--yes", action="store_true", help="Required for installation")
+    prepare_project.add_argument("--docs-only", action="store_true", help="Write docs context without resolving skills")
+    prepare_project.add_argument("--skills-only", action="store_true", help="Resolve skills without writing docs context")
+    prepare_project.add_argument("--allow-docs-web", action="store_true", help="Search/probe web docs for unknown capabilities")
+    prepare_project.add_argument("--docs-web-limit", type=int, default=3, help="Maximum web docs candidates per capability")
+    prepare_project.add_argument("--docs-timeout", type=float, default=5.0, help="Per-request docs discovery timeout in seconds")
+    prepare_project.add_argument("--json", action="store_true", help="Emit JSON")
+    prepare_project.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
+    prepare_project.set_defaults(func=cmd_prepare_project)
 
     return parser
 

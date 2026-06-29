@@ -40,6 +40,7 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 ├── capability-orchestrator/
 │   ├── SKILL.md
 │   ├── references/
+│   │   ├── tech-registry.json
 │   │   ├── schemas.md
 │   │   ├── evaluation-rubric.md
 │   │   ├── tte-workflow.md
@@ -48,7 +49,10 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │       ├── benchmark_skills.py
 │       ├── codex_skills.py
 │       ├── detect_project_stack.py
+│       ├── extract_capabilities.py
+│       ├── fetch_docs_context.py
 │       ├── inspect_skill.py
+│       ├── prepare_project.py
 │       ├── resolve_capability.py
 │       ├── resolve_project.py
 │       ├── run_self_test.py
@@ -126,108 +130,58 @@ Copy-Item -Recurse -Force .\capability-orchestrator "$env:USERPROFILE\.codex\ski
 
 Use the skill when a task requires missing capability discovery, Codex skill benchmarking, MCP registry comparison, dynamic tool integration, or safe tool synthesis.
 
-Run the helper scripts locally with Python 3.11 or newer:
+Run the deterministic self-test locally with Python 3.11 or newer:
 
 ```bash
-./codex-skills scan-global
-./codex-skills detect .
-./codex-skills resolve-project .
-./codex-skills resolve laravel
 python capability-orchestrator/scripts/run_self_test.py
-python capability-orchestrator/scripts/validate_manifest.py candidate-skill manifest.json
-python capability-orchestrator/scripts/score_candidates.py telemetry.json --pretty
-python capability-orchestrator/scripts/synthesize_tool_harness.py --runtime python --entrypoint tool.py --test-command '["python","-m","pytest"]'
 ```
 
-## Codex Skills CLI
+## Natural Prompt Flow
 
-Use the top-level CLI wrapper for common tasks:
+The primary workflow is prompt-driven. When this skill is installed, Codex should treat a normal build prompt as the source request, prepare project context internally, read the generated manifest/docs, and then implement.
+
+Example user prompts:
+
+- `create a website using Shopify Liquid theme`
+- `build a product site with Astro and Drizzle`
+- `create a Next.js app with Tailwind CSS and Supabase`
+- `add a Django admin dashboard with Celery`
+
+For these prompts, Codex should run project preparation itself. The generated context lives in `.codex/context/manifest.json` and `.codex/context/docs/`.
+
+## Manual Project Preparation
+
+Manual commands are useful for testing the workflow directly. They are not required when Codex is using the skill automatically.
 
 ```bash
-./codex-skills scan-global
-./codex-skills scan-global --include-system
-./codex-skills self-test
-./codex-skills benchmark-examples --pretty
-./codex-skills inspect ~/.codex/skills/example-skill --pretty
-./codex-skills detect .
-./codex-skills resolve-project .
-./codex-skills resolve laravel
-./codex-skills resolve laravel --allow-github
-./codex-skills resolve laravel --allow-github --install --scope local --yes
+./codex-skills prepare-project . Create a Next.js product with Tailwind CSS and Supabase
 ```
 
 On Windows PowerShell:
 
 ```powershell
-.\codex-skills.ps1 scan-global
-.\codex-skills.ps1 scan-global --include-system
-.\codex-skills.ps1 self-test
-.\codex-skills.ps1 benchmark-examples --pretty
-.\codex-skills.ps1 inspect "$env:USERPROFILE\.codex\skills\example-skill" --pretty
-.\codex-skills.ps1 detect .
-.\codex-skills.ps1 resolve-project .
-.\codex-skills.ps1 resolve laravel
-.\codex-skills.ps1 resolve laravel --allow-github
-.\codex-skills.ps1 resolve laravel --allow-github --install --scope local --yes
+.\codex-skills.ps1 prepare-project . Create a Next.js product with Tailwind CSS and Supabase
 ```
 
-The CLI is intentionally small and repo-native. It gives Codex CLI users a single predictable interface for scanning installed skills, inspecting a skill folder, running self-tests, and trying the included benchmark fixture.
-
-## Automatic Skill Resolution
-
-Resolve an explicit capability such as Laravel, Next.js, Django, Rails, Expo, React, FastAPI, Spring Boot, Flutter, Go, Rust, or any other stack term against installed global and project skills:
+This extracts capabilities from the prompt and project manifests, searches local and global skills, writes `.codex/context/manifest.json`, and records verified official docs provenance under `.codex/context/docs/`. GitHub discovery stays opt-in:
 
 ```bash
-./codex-skills resolve laravel
+./codex-skills prepare-project . Build a Laravel app --allow-github
 ```
 
-Search local skills first, then optionally search GitHub for better validated candidates:
+Allow docs discovery for unknown stacks:
 
 ```bash
-./codex-skills resolve laravel --allow-github
+./codex-skills prepare-project . Build with Astro and Drizzle --allow-docs-web
 ```
 
-Install the best validated candidate into the current project's `.codex/skills` folder:
+Skill installation is also explicit:
 
 ```bash
-./codex-skills resolve laravel --allow-github --install --scope local --yes
+./codex-skills prepare-project . Build a Laravel app --allow-github --install --yes
 ```
 
-On Windows PowerShell:
-
-```powershell
-.\codex-skills.ps1 resolve laravel --allow-github --install --scope local --yes
-```
-
-The resolver compares candidates by relevance and static quality. It validates `SKILL.md`, checks bundled resources, ranks matches, and installs only when `--install --yes` is provided. GitHub search is opt-in with `--allow-github` because remote code is untrusted until inspected.
-
-## Automatic Project Stack Detection
-
-Detect the current project's stack:
-
-```bash
-./codex-skills detect .
-```
-
-Detect the stack and resolve matching skills automatically:
-
-```bash
-./codex-skills resolve-project .
-```
-
-Search GitHub for better candidates and install the best validated skill into the project:
-
-```bash
-./codex-skills resolve-project . --allow-github --install --scope local --yes
-```
-
-On Windows PowerShell:
-
-```powershell
-.\codex-skills.ps1 resolve-project . --allow-github --install --scope local --yes
-```
-
-Detection currently recognizes common project files for Laravel/PHP, Next.js, React, Expo React Native, Vue/Nuxt, Angular, SvelteKit, Vite, Django, FastAPI, Flask, Rails/Ruby, Go, Rust, Java/Spring Boot, Flutter, and Dart. Unknown stacks still work through explicit resolution, for example `./codex-skills resolve wordpress --allow-github`.
+The English prompt can be positional text after the project path, or supplied with `--request` for scripts that prefer explicit flags. Use `--docs-only` to write docs context without resolving skills, or `--skills-only` to resolve skills without docs context. Missing docs sources, unknown capabilities, and unresolved skills are recorded as warnings in the manifest instead of being inferred. With `--allow-docs-web`, unknown capabilities can get reachable HTTPS documentation candidates marked as `web-discovered`; registry entries remain the only sources treated as approved official docs.
 
 ## One-Command Self Test
 
@@ -243,52 +197,7 @@ After global installation, test the installed skill copy directly:
 python "$env:USERPROFILE\.codex\skills\capability-orchestrator\scripts\run_self_test.py"
 ```
 
-The self-test compiles every bundled Python script, inspects valid and invalid example skills, validates candidate and atomic tool manifests, scores benchmark telemetry, checks malformed telemetry failure behavior, verifies harness path safety, and runs a static skill benchmark.
-
-## Test Existing Skills
-
-Scan globally installed user skills:
-
-```bash
-./codex-skills scan-global
-```
-
-Include built-in system skills:
-
-```bash
-./codex-skills scan-global --include-system
-```
-
-Inspect any existing Codex skill folder:
-
-```bash
-python capability-orchestrator/scripts/inspect_skill.py ~/.codex/skills/example-skill --pretty
-```
-
-On Windows PowerShell:
-
-```powershell
-python .\capability-orchestrator\scripts\inspect_skill.py "$env:USERPROFILE\.codex\skills\example-skill" --pretty
-```
-
-Convert an existing skill into a local candidate manifest:
-
-```bash
-python capability-orchestrator/scripts/inspect_skill.py ~/.codex/skills/example-skill --manifest --pretty > candidate.json
-python capability-orchestrator/scripts/validate_manifest.py candidate-skill candidate.json
-```
-
-This checks whether the skill has a valid `SKILL.md`, usable frontmatter, and discoverable bundled resources. Behavioral benchmarking still requires benchmark tasks and telemetry, because a static skill inspection cannot prove whether the skill succeeds on real user work.
-
-## Benchmark Skill Candidates
-
-Run the included static benchmark fixture:
-
-```bash
-python capability-orchestrator/scripts/benchmark_skills.py examples/benchmark/static-skills.json --pretty
-```
-
-The benchmark runner inspects each candidate skill folder and emits `BenchmarkTelemetry`-compatible JSON plus a weighted ranking. Static benchmarking is useful for repository hygiene and first-pass candidate comparison; it does not replace real task execution.
+The self-test compiles every bundled Python script, inspects valid and invalid example skills, validates candidate and atomic tool manifests, scores benchmark telemetry, checks malformed telemetry failure behavior, verifies harness path safety, runs a static skill benchmark, and verifies project preparation context generation.
 
 ## Examples
 
@@ -302,7 +211,7 @@ This repository includes fixtures for quick testing:
 - `examples/laravel-skill`: Laravel fixture for automatic capability resolution
 - `examples/nextjs-skill`: Next.js fixture for automatic project stack resolution
 - `examples/django-skill`: Django fixture for automatic project stack resolution
-- `examples/projects`: tiny Laravel, Next.js, and Django project fixtures for detector tests
+- `examples/projects`: tiny Laravel, Next.js, Django, Flutter, and Go project fixtures for detector tests
 
 ## What This Helps With
 
@@ -334,6 +243,7 @@ Use this repository if you build or maintain Codex skills, agent tool registries
 
 - It does not automatically trust or install registry code.
 - It does not search GitHub unless `--allow-github` is provided.
+- It does not search the web for unknown stack docs unless `--allow-docs-web` is provided.
 - It does not install anything unless `--install --yes` is provided.
 - It does not prove behavioral success from static inspection alone.
 - It does not provide a secure sandbox by itself; it emits contracts and harness manifests for a configured sandbox runner.
