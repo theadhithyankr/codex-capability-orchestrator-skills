@@ -26,9 +26,14 @@ def _parse_frontmatter(skill_md: Path) -> tuple[dict[str, str], str]:
     for line_number, line in enumerate(raw_frontmatter.splitlines(), start=2):
         if not line.strip():
             continue
-        if ": " not in line:
+        if line[:1].isspace():
+            continue
+        if ":" not in line:
             raise ValueError(f"frontmatter line {line_number} must use 'key: value'")
-        key, value = line.split(": ", 1)
+        key, value = line.split(":", 1)
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
         if key in fields:
             raise ValueError(f"duplicate frontmatter key: {key}")
         fields[key] = value
