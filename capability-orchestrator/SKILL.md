@@ -9,6 +9,8 @@ allowed-tools: Read Grep Bash(rg:*) Bash(Get-Content:*) Bash(Get-ChildItem:*) Ba
 
 Use this skill to close a capability gap without inventing tool behavior. Prefer existing, trusted capabilities; synthesize a new tool only when registry search and local discovery fail.
 
+Use this skill before implementation when a user prompt mentions a specialized platform, framework, vendor, SDK, or domain-specific language and no matching dedicated skill is already active. Examples include Shopify Liquid, Salesforce, Stripe, n8n, Convex, Expo, Terraform, Kubernetes, GitHub Actions, Supabase, and similar named stacks.
+
 ## Core Loop
 
 1. Planner:
@@ -48,7 +50,7 @@ Use this skill to close a capability gap without inventing tool behavior. Prefer
 
 ## Project Preparation
 
-When the user asks in normal English to build, update, or prepare a project with named frameworks, libraries, SDKs, databases, UI kits, deployment platforms, or unknown stack terms, treat that user message as the source prompt and run project preparation before implementation. Do this internally; do not ask the user to type `codex-skills` commands.
+When the user asks in normal English to build, update, or prepare a project with named frameworks, libraries, SDKs, databases, UI kits, deployment platforms, specialized vendors, DSLs, or unknown stack terms, treat that user message as the source prompt and run project preparation before implementation. Do this internally; do not ask the user to type `codex-skills` commands.
 
 For a prompt like “create a website using Shopify Liquid theme”, Codex should run the equivalent of this itself from the project root:
 
