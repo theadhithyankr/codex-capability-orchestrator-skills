@@ -34,17 +34,20 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 ## Repository Structure
 
 ```text
-capability-orchestrator/
-├── SKILL.md
-├── references/
-│   ├── schemas.md
-│   ├── evaluation-rubric.md
-│   ├── tte-workflow.md
-│   └── security-boundaries.md
-└── scripts/
-    ├── score_candidates.py
-    ├── validate_manifest.py
-    └── synthesize_tool_harness.py
+.
+├── capability-orchestrator/
+│   ├── SKILL.md
+│   ├── references/
+│   │   ├── schemas.md
+│   │   ├── evaluation-rubric.md
+│   │   ├── tte-workflow.md
+│   │   └── security-boundaries.md
+│   └── scripts/
+│       ├── score_candidates.py
+│       ├── validate_manifest.py
+│       └── synthesize_tool_harness.py
+├── install.sh
+└── install.ps1
 ```
 
 ## Quick Start
@@ -56,14 +59,40 @@ git clone https://github.com/theadhithyankr/codex-capability-orchestrator-skills
 cd codex-capability-orchestrator-skills
 ```
 
-Install the skill into your local Codex skills directory:
+Install with the interactive script:
+
+```bash
+./install.sh
+```
+
+Install locally without a prompt:
+
+```bash
+./install.sh --local
+```
+
+On Windows PowerShell:
+
+```powershell
+.\install.ps1
+```
+
+Windows local install without a prompt:
+
+```powershell
+.\install.ps1 -Scope local
+```
+
+The installer asks whether to install globally into your Codex skills directory or locally into the current project's `.codex/skills` folder.
+
+Manual global install:
 
 ```bash
 mkdir -p ~/.codex/skills
 cp -R capability-orchestrator ~/.codex/skills/
 ```
 
-On Windows PowerShell:
+Manual Windows PowerShell install:
 
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.codex\skills"
