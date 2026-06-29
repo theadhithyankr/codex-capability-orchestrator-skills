@@ -132,6 +132,37 @@ def main() -> int:
     assert isinstance(benchmark, dict)
     assert benchmark["ranking"][0]["candidate_id"] == "valid-example-skill"
 
+    scan = load_stdout_json(
+        run(
+            [
+                PYTHON,
+                str(SCRIPTS / "scan_global_skills.py"),
+                "--root",
+                "examples",
+                "--json",
+            ],
+            expect=1,
+        )
+    )
+    assert isinstance(scan, dict)
+    assert scan["total"] >= 2
+
+    cli_scan = load_stdout_json(
+        run(
+            [
+                PYTHON,
+                str(SCRIPTS / "codex_skills.py"),
+                "scan-global",
+                "--root",
+                "examples",
+                "--json",
+            ],
+            expect=1,
+        )
+    )
+    assert isinstance(cli_scan, dict)
+    assert cli_scan["invalid"] >= 1
+
     print("self-test ok")
     return 0
 

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+python "$ROOT_DIR/capability-orchestrator/scripts/codex_skills.py" "$@"

@@ -46,8 +46,10 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │   │   └── security-boundaries.md
 │   └── scripts/
 │       ├── benchmark_skills.py
+│       ├── codex_skills.py
 │       ├── inspect_skill.py
 │       ├── run_self_test.py
+│       ├── scan_global_skills.py
 │       ├── score_candidates.py
 │       ├── validate_manifest.py
 │       └── synthesize_tool_harness.py
@@ -60,6 +62,8 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 ├── .github/workflows/ci.yml
 ├── LICENSE
 ├── VERSION
+├── codex-skills
+├── codex-skills.ps1
 ├── install.sh
 └── install.ps1
 ```
@@ -118,11 +122,36 @@ Use the skill when a task requires missing capability discovery, Codex skill ben
 Run the helper scripts locally with Python 3.11 or newer:
 
 ```bash
+./codex-skills scan-global
 python capability-orchestrator/scripts/run_self_test.py
 python capability-orchestrator/scripts/validate_manifest.py candidate-skill manifest.json
 python capability-orchestrator/scripts/score_candidates.py telemetry.json --pretty
 python capability-orchestrator/scripts/synthesize_tool_harness.py --runtime python --entrypoint tool.py --test-command '["python","-m","pytest"]'
 ```
+
+## Codex Skills CLI
+
+Use the top-level CLI wrapper for common tasks:
+
+```bash
+./codex-skills scan-global
+./codex-skills scan-global --include-system
+./codex-skills self-test
+./codex-skills benchmark-examples --pretty
+./codex-skills inspect ~/.codex/skills/example-skill --pretty
+```
+
+On Windows PowerShell:
+
+```powershell
+.\codex-skills.ps1 scan-global
+.\codex-skills.ps1 scan-global --include-system
+.\codex-skills.ps1 self-test
+.\codex-skills.ps1 benchmark-examples --pretty
+.\codex-skills.ps1 inspect "$env:USERPROFILE\.codex\skills\example-skill" --pretty
+```
+
+The CLI is intentionally small and repo-native. It gives Codex CLI users a single predictable interface for scanning installed skills, inspecting a skill folder, running self-tests, and trying the included benchmark fixture.
 
 ## One-Command Self Test
 
@@ -135,6 +164,18 @@ python capability-orchestrator/scripts/run_self_test.py
 The self-test compiles every bundled Python script, inspects valid and invalid example skills, validates candidate and atomic tool manifests, scores benchmark telemetry, checks malformed telemetry failure behavior, verifies harness path safety, and runs a static skill benchmark.
 
 ## Test Existing Skills
+
+Scan globally installed user skills:
+
+```bash
+./codex-skills scan-global
+```
+
+Include built-in system skills:
+
+```bash
+./codex-skills scan-global --include-system
+```
 
 Inspect any existing Codex skill folder:
 
