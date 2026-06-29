@@ -11,6 +11,8 @@
 ![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776ab?style=for-the-badge&logo=python&logoColor=white)
 ![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Security First](https://img.shields.io/badge/Security-Default%20Deny-b91c1c?style=for-the-badge)
+![CI](https://img.shields.io/github/actions/workflow/status/theadhithyankr/codex-capability-orchestrator-skills/ci.yml?branch=main&style=for-the-badge&label=CI)
+![License](https://img.shields.io/github/license/theadhithyankr/codex-capability-orchestrator-skills?style=for-the-badge)
 
 </div>
 
@@ -43,10 +45,21 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │   │   ├── tte-workflow.md
 │   │   └── security-boundaries.md
 │   └── scripts/
+│       ├── benchmark_skills.py
 │       ├── inspect_skill.py
+│       ├── run_self_test.py
 │       ├── score_candidates.py
 │       ├── validate_manifest.py
 │       └── synthesize_tool_harness.py
+├── examples/
+│   ├── benchmark/
+│   ├── manifests/
+│   ├── telemetry/
+│   ├── valid-skill/
+│   └── invalid-skill-missing-description/
+├── .github/workflows/ci.yml
+├── LICENSE
+├── VERSION
 ├── install.sh
 └── install.ps1
 ```
@@ -105,10 +118,21 @@ Use the skill when a task requires missing capability discovery, Codex skill ben
 Run the helper scripts locally with Python 3.11 or newer:
 
 ```bash
+python capability-orchestrator/scripts/run_self_test.py
 python capability-orchestrator/scripts/validate_manifest.py candidate-skill manifest.json
 python capability-orchestrator/scripts/score_candidates.py telemetry.json --pretty
 python capability-orchestrator/scripts/synthesize_tool_harness.py --runtime python --entrypoint tool.py --test-command '["python","-m","pytest"]'
 ```
+
+## One-Command Self Test
+
+Run the full deterministic self-test suite:
+
+```bash
+python capability-orchestrator/scripts/run_self_test.py
+```
+
+The self-test compiles every bundled Python script, inspects valid and invalid example skills, validates candidate and atomic tool manifests, scores benchmark telemetry, checks malformed telemetry failure behavior, verifies harness path safety, and runs a static skill benchmark.
 
 ## Test Existing Skills
 
@@ -133,6 +157,26 @@ python capability-orchestrator/scripts/validate_manifest.py candidate-skill cand
 
 This checks whether the skill has a valid `SKILL.md`, usable frontmatter, and discoverable bundled resources. Behavioral benchmarking still requires benchmark tasks and telemetry, because a static skill inspection cannot prove whether the skill succeeds on real user work.
 
+## Benchmark Skill Candidates
+
+Run the included static benchmark fixture:
+
+```bash
+python capability-orchestrator/scripts/benchmark_skills.py examples/benchmark/static-skills.json --pretty
+```
+
+The benchmark runner inspects each candidate skill folder and emits `BenchmarkTelemetry`-compatible JSON plus a weighted ranking. Static benchmarking is useful for repository hygiene and first-pass candidate comparison; it does not replace real task execution.
+
+## Examples
+
+This repository includes fixtures for quick testing:
+
+- `examples/valid-skill`: valid Codex skill with bundled script and reference files
+- `examples/invalid-skill-missing-description`: invalid skill fixture for failure testing
+- `examples/manifests`: valid candidate skill and atomic tool manifests
+- `examples/telemetry`: valid and malformed benchmark telemetry
+- `examples/benchmark`: static benchmark spec for comparing skill folders
+
 ## What This Helps With
 
 - Codex Agent Skills discovery when a required capability is missing
@@ -155,9 +199,27 @@ Codex Capability Orchestrator Skills uses a default-deny model. Registry metadat
 - Validate manifests before persisting or enabling agent capabilities
 - Improve AI agent reliability by avoiding invented tool behavior
 
+## Who Should Use This
+
+Use this repository if you build or maintain Codex skills, agent tool registries, MCP integrations, dynamic tool selection workflows, or benchmark-driven AI agent infrastructure.
+
+## What This Does Not Do
+
+- It does not automatically trust or install registry code.
+- It does not prove behavioral success from static inspection alone.
+- It does not provide a secure sandbox by itself; it emits contracts and harness manifests for a configured sandbox runner.
+- It does not invent registry results, benchmark scores, or tool behavior when evidence is missing.
+
+## Roadmap
+
+- Add richer behavioral benchmark adapters for real task execution.
+- Add optional JSON Schema exports alongside Pydantic and Zod schemas.
+- Add release archives for direct skill installation.
+- Add example MCP registry search transcripts with redacted provenance.
+
 ## Status
 
-This repository contains a complete, verified first version of the `capability-orchestrator` Agent Skills package.
+This repository contains a complete, verified `v0.1.0` release of the `capability-orchestrator` Agent Skills package.
 
 ## Suggested GitHub Topics
 

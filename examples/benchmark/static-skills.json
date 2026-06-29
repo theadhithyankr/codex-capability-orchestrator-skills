@@ -1,0 +1,18 @@
+{
+  "tasks": [
+    {
+      "task_id": "static-quality",
+      "prompt": "Inspect the skill structure and frontmatter quality."
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "valid-example-skill",
+      "skill_dir": "examples/valid-skill"
+    },
+    {
+      "candidate_id": "invalid-example-skill",
+      "skill_dir": "examples/invalid-skill-missing-description"
+    }
+  ]
+}

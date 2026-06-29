@@ -1,0 +1,36 @@
+[
+  {
+    "candidate_id": "valid-example-skill",
+    "task_id": "static-quality",
+    "success_score": 1.0,
+    "error_rate": 0.0,
+    "reliability_score": 1.0,
+    "latency_ms": 12,
+    "latency_score": 1.0,
+    "input_tokens": 120,
+    "output_tokens": 40,
+    "token_efficiency_score": 0.9,
+    "maintainability_security_score": 0.95,
+    "evidence": [
+      "valid SKILL.md",
+      "references discovered",
+      "scripts discovered"
+    ]
+  },
+  {
+    "candidate_id": "partial-example-skill",
+    "task_id": "static-quality",
+    "success_score": 0.4,
+    "error_rate": 0.6,
+    "reliability_score": 0.4,
+    "latency_ms": 20,
+    "latency_score": 0.8,
+    "input_tokens": 260,
+    "output_tokens": 90,
+    "token_efficiency_score": 0.5,
+    "maintainability_security_score": 0.5,
+    "evidence": [
+      "missing references"
+    ]
+  }
+]
