@@ -53,6 +53,33 @@ def cmd_inspect(args: argparse.Namespace) -> int:
     return run_python("inspect_skill.py", cli_args)
 
 
+def cmd_resolve(args: argparse.Namespace) -> int:
+    cli_args = [args.capability]
+    for root in args.root:
+        cli_args.extend(["--root", root])
+    if args.global_root:
+        cli_args.extend(["--global-root", args.global_root])
+    if args.project_root:
+        cli_args.extend(["--project-root", args.project_root])
+    if args.include_system:
+        cli_args.append("--include-system")
+    if args.allow_github:
+        cli_args.append("--allow-github")
+    cli_args.extend(["--github-limit", str(args.github_limit)])
+    if args.install:
+        cli_args.append("--install")
+    cli_args.extend(["--scope", args.scope])
+    if args.target_root:
+        cli_args.extend(["--target-root", args.target_root])
+    if args.yes:
+        cli_args.append("--yes")
+    if args.json:
+        cli_args.append("--json")
+    if args.pretty:
+        cli_args.append("--pretty")
+    return run_python("resolve_capability.py", cli_args)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="codex-skills",
@@ -79,6 +106,22 @@ def build_parser() -> argparse.ArgumentParser:
     inspect.add_argument("--manifest", action="store_true", help="Emit candidate manifest JSON")
     inspect.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
     inspect.set_defaults(func=cmd_inspect)
+
+    resolve = subparsers.add_parser("resolve", help="Find, compare, and optionally install the best skill")
+    resolve.add_argument("capability", help="Capability to resolve, e.g. laravel")
+    resolve.add_argument("--root", action="append", default=[], help="Skills root to search")
+    resolve.add_argument("--global-root", help="Global Codex skills root")
+    resolve.add_argument("--project-root", help="Project root for .codex/skills search")
+    resolve.add_argument("--include-system", action="store_true", help="Include built-in .system skills")
+    resolve.add_argument("--allow-github", action="store_true", help="Search GitHub with gh")
+    resolve.add_argument("--github-limit", type=int, default=10, help="Maximum GitHub repositories to inspect")
+    resolve.add_argument("--install", action="store_true", help="Install the winning validated candidate")
+    resolve.add_argument("--scope", choices=["global", "local"], default="local", help="Install destination scope")
+    resolve.add_argument("--target-root", help="Override skills install root")
+    resolve.add_argument("--yes", action="store_true", help="Required for installation")
+    resolve.add_argument("--json", action="store_true", help="Emit JSON")
+    resolve.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
+    resolve.set_defaults(func=cmd_resolve)
 
     return parser
 

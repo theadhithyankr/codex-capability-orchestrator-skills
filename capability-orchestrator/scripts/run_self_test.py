@@ -163,6 +163,72 @@ def main() -> int:
     assert isinstance(cli_scan, dict)
     assert cli_scan["invalid"] >= 1
 
+    resolved = load_stdout_json(
+        run(
+            [
+                PYTHON,
+                str(SCRIPTS / "resolve_capability.py"),
+                "laravel",
+                "--root",
+                "examples",
+                "--global-root",
+                "missing-global-skills",
+                "--project-root",
+                "missing-project",
+                "--json",
+            ]
+        )
+    )
+    assert isinstance(resolved, dict)
+    assert resolved["winner"]["name"] == "laravel-workflow"
+
+    cli_resolved = load_stdout_json(
+        run(
+            [
+                PYTHON,
+                str(SCRIPTS / "codex_skills.py"),
+                "resolve",
+                "laravel",
+                "--root",
+                "examples",
+                "--global-root",
+                "missing-global-skills",
+                "--project-root",
+                "missing-project",
+                "--json",
+            ]
+        )
+    )
+    assert isinstance(cli_resolved, dict)
+    assert cli_resolved["winner"]["name"] == "laravel-workflow"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        target_root = Path(tmp) / "skills"
+        installed = load_stdout_json(
+            run(
+                [
+                    PYTHON,
+                    str(SCRIPTS / "resolve_capability.py"),
+                    "laravel",
+                    "--root",
+                    "examples",
+                    "--global-root",
+                    "missing-global-skills",
+                    "--project-root",
+                    "missing-project",
+                    "--install",
+                    "--scope",
+                    "local",
+                    "--target-root",
+                    str(target_root),
+                    "--yes",
+                    "--json",
+                ]
+            )
+        )
+        assert installed["installed_to"]
+        assert (target_root / "laravel-workflow" / "SKILL.md").is_file()
+
     print("self-test ok")
     return 0
 

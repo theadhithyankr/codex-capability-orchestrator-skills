@@ -42,3 +42,4 @@ Use this skill to close a capability gap without inventing tool behavior. Prefer
 - Use `scripts/score_candidates.py` to compute weighted candidate rankings from strict telemetry JSON.
 - Use `scripts/validate_manifest.py` to validate candidate skill/tool manifests before install, benchmark, or persistence.
 - Use `scripts/synthesize_tool_harness.py` to build a sandbox-run manifest for generated Python or Node.js tools and tests.
+- Use `scripts/resolve_capability.py` to search installed/project skills, optionally inspect GitHub candidates, rank validated matches, and install the best candidate only when installation is explicitly confirmed.

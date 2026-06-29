@@ -48,6 +48,7 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │       ├── benchmark_skills.py
 │       ├── codex_skills.py
 │       ├── inspect_skill.py
+│       ├── resolve_capability.py
 │       ├── run_self_test.py
 │       ├── scan_global_skills.py
 │       ├── score_candidates.py
@@ -57,6 +58,7 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │   ├── benchmark/
 │   ├── manifests/
 │   ├── telemetry/
+│   ├── laravel-skill/
 │   ├── valid-skill/
 │   └── invalid-skill-missing-description/
 ├── .github/workflows/ci.yml
@@ -123,6 +125,7 @@ Run the helper scripts locally with Python 3.11 or newer:
 
 ```bash
 ./codex-skills scan-global
+./codex-skills resolve laravel
 python capability-orchestrator/scripts/run_self_test.py
 python capability-orchestrator/scripts/validate_manifest.py candidate-skill manifest.json
 python capability-orchestrator/scripts/score_candidates.py telemetry.json --pretty
@@ -139,6 +142,9 @@ Use the top-level CLI wrapper for common tasks:
 ./codex-skills self-test
 ./codex-skills benchmark-examples --pretty
 ./codex-skills inspect ~/.codex/skills/example-skill --pretty
+./codex-skills resolve laravel
+./codex-skills resolve laravel --allow-github
+./codex-skills resolve laravel --allow-github --install --scope local --yes
 ```
 
 On Windows PowerShell:
@@ -149,9 +155,40 @@ On Windows PowerShell:
 .\codex-skills.ps1 self-test
 .\codex-skills.ps1 benchmark-examples --pretty
 .\codex-skills.ps1 inspect "$env:USERPROFILE\.codex\skills\example-skill" --pretty
+.\codex-skills.ps1 resolve laravel
+.\codex-skills.ps1 resolve laravel --allow-github
+.\codex-skills.ps1 resolve laravel --allow-github --install --scope local --yes
 ```
 
 The CLI is intentionally small and repo-native. It gives Codex CLI users a single predictable interface for scanning installed skills, inspecting a skill folder, running self-tests, and trying the included benchmark fixture.
+
+## Automatic Skill Resolution
+
+Resolve a capability such as Laravel against installed global and project skills:
+
+```bash
+./codex-skills resolve laravel
+```
+
+Search local skills first, then optionally search GitHub for better validated candidates:
+
+```bash
+./codex-skills resolve laravel --allow-github
+```
+
+Install the best validated candidate into the current project's `.codex/skills` folder:
+
+```bash
+./codex-skills resolve laravel --allow-github --install --scope local --yes
+```
+
+On Windows PowerShell:
+
+```powershell
+.\codex-skills.ps1 resolve laravel --allow-github --install --scope local --yes
+```
+
+The resolver compares candidates by relevance and static quality. It validates `SKILL.md`, checks bundled resources, ranks matches, and installs only when `--install --yes` is provided. GitHub search is opt-in with `--allow-github` because remote code is untrusted until inspected.
 
 ## One-Command Self Test
 
@@ -217,6 +254,7 @@ This repository includes fixtures for quick testing:
 - `examples/manifests`: valid candidate skill and atomic tool manifests
 - `examples/telemetry`: valid and malformed benchmark telemetry
 - `examples/benchmark`: static benchmark spec for comparing skill folders
+- `examples/laravel-skill`: Laravel fixture for automatic capability resolution
 
 ## What This Helps With
 
@@ -247,6 +285,8 @@ Use this repository if you build or maintain Codex skills, agent tool registries
 ## What This Does Not Do
 
 - It does not automatically trust or install registry code.
+- It does not search GitHub unless `--allow-github` is provided.
+- It does not install anything unless `--install --yes` is provided.
 - It does not prove behavioral success from static inspection alone.
 - It does not provide a secure sandbox by itself; it emits contracts and harness manifests for a configured sandbox runner.
 - It does not invent registry results, benchmark scores, or tool behavior when evidence is missing.
