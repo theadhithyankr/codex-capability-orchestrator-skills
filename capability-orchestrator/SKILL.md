@@ -43,3 +43,4 @@ Use this skill to close a capability gap without inventing tool behavior. Prefer
 - Use `scripts/validate_manifest.py` to validate candidate skill/tool manifests before install, benchmark, or persistence.
 - Use `scripts/synthesize_tool_harness.py` to build a sandbox-run manifest for generated Python or Node.js tools and tests.
 - Use `scripts/resolve_capability.py` to search installed/project skills, optionally inspect GitHub candidates, rank validated matches, and install the best candidate only when installation is explicitly confirmed.
+- Use `scripts/detect_project_stack.py` and `scripts/resolve_project.py` when the user wants automatic stack-aware skill resolution for a project without naming the framework.

@@ -47,8 +47,10 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │   └── scripts/
 │       ├── benchmark_skills.py
 │       ├── codex_skills.py
+│       ├── detect_project_stack.py
 │       ├── inspect_skill.py
 │       ├── resolve_capability.py
+│       ├── resolve_project.py
 │       ├── run_self_test.py
 │       ├── scan_global_skills.py
 │       ├── score_candidates.py
@@ -56,9 +58,12 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │       └── synthesize_tool_harness.py
 ├── examples/
 │   ├── benchmark/
+│   ├── projects/
 │   ├── manifests/
 │   ├── telemetry/
+│   ├── django-skill/
 │   ├── laravel-skill/
+│   ├── nextjs-skill/
 │   ├── valid-skill/
 │   └── invalid-skill-missing-description/
 ├── .github/workflows/ci.yml
@@ -125,6 +130,8 @@ Run the helper scripts locally with Python 3.11 or newer:
 
 ```bash
 ./codex-skills scan-global
+./codex-skills detect .
+./codex-skills resolve-project .
 ./codex-skills resolve laravel
 python capability-orchestrator/scripts/run_self_test.py
 python capability-orchestrator/scripts/validate_manifest.py candidate-skill manifest.json
@@ -142,6 +149,8 @@ Use the top-level CLI wrapper for common tasks:
 ./codex-skills self-test
 ./codex-skills benchmark-examples --pretty
 ./codex-skills inspect ~/.codex/skills/example-skill --pretty
+./codex-skills detect .
+./codex-skills resolve-project .
 ./codex-skills resolve laravel
 ./codex-skills resolve laravel --allow-github
 ./codex-skills resolve laravel --allow-github --install --scope local --yes
@@ -155,6 +164,8 @@ On Windows PowerShell:
 .\codex-skills.ps1 self-test
 .\codex-skills.ps1 benchmark-examples --pretty
 .\codex-skills.ps1 inspect "$env:USERPROFILE\.codex\skills\example-skill" --pretty
+.\codex-skills.ps1 detect .
+.\codex-skills.ps1 resolve-project .
 .\codex-skills.ps1 resolve laravel
 .\codex-skills.ps1 resolve laravel --allow-github
 .\codex-skills.ps1 resolve laravel --allow-github --install --scope local --yes
@@ -164,7 +175,7 @@ The CLI is intentionally small and repo-native. It gives Codex CLI users a singl
 
 ## Automatic Skill Resolution
 
-Resolve a capability such as Laravel against installed global and project skills:
+Resolve an explicit capability such as Laravel, Next.js, Django, Rails, Expo, React, FastAPI, Spring Boot, Flutter, Go, Rust, or any other stack term against installed global and project skills:
 
 ```bash
 ./codex-skills resolve laravel
@@ -189,6 +200,34 @@ On Windows PowerShell:
 ```
 
 The resolver compares candidates by relevance and static quality. It validates `SKILL.md`, checks bundled resources, ranks matches, and installs only when `--install --yes` is provided. GitHub search is opt-in with `--allow-github` because remote code is untrusted until inspected.
+
+## Automatic Project Stack Detection
+
+Detect the current project's stack:
+
+```bash
+./codex-skills detect .
+```
+
+Detect the stack and resolve matching skills automatically:
+
+```bash
+./codex-skills resolve-project .
+```
+
+Search GitHub for better candidates and install the best validated skill into the project:
+
+```bash
+./codex-skills resolve-project . --allow-github --install --scope local --yes
+```
+
+On Windows PowerShell:
+
+```powershell
+.\codex-skills.ps1 resolve-project . --allow-github --install --scope local --yes
+```
+
+Detection currently recognizes common project files for Laravel/PHP, Next.js, React, Expo React Native, Vue/Nuxt, Angular, SvelteKit, Vite, Django, FastAPI, Flask, Rails/Ruby, Go, Rust, Java/Spring Boot, Flutter, and Dart. Unknown stacks still work through explicit resolution, for example `./codex-skills resolve wordpress --allow-github`.
 
 ## One-Command Self Test
 
@@ -255,6 +294,9 @@ This repository includes fixtures for quick testing:
 - `examples/telemetry`: valid and malformed benchmark telemetry
 - `examples/benchmark`: static benchmark spec for comparing skill folders
 - `examples/laravel-skill`: Laravel fixture for automatic capability resolution
+- `examples/nextjs-skill`: Next.js fixture for automatic project stack resolution
+- `examples/django-skill`: Django fixture for automatic project stack resolution
+- `examples/projects`: tiny Laravel, Next.js, and Django project fixtures for detector tests
 
 ## What This Helps With
 

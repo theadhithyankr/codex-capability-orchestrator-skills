@@ -229,6 +229,49 @@ def main() -> int:
         assert installed["installed_to"]
         assert (target_root / "laravel-workflow" / "SKILL.md").is_file()
 
+    detected = load_stdout_json(
+        run([PYTHON, str(SCRIPTS / "detect_project_stack.py"), "examples/projects/nextjs"])
+    )
+    assert isinstance(detected, dict)
+    assert detected["detected"][0]["stack"] == "nextjs"
+
+    project_resolved = load_stdout_json(
+        run(
+            [
+                PYTHON,
+                str(SCRIPTS / "resolve_project.py"),
+                "examples/projects/nextjs",
+                "--root",
+                "examples",
+                "--global-root",
+                "missing-global-skills",
+                "--json",
+            ]
+        )
+    )
+    assert isinstance(project_resolved, dict)
+    assert project_resolved["project"]["detected"][0]["stack"] == "nextjs"
+    assert project_resolved["resolutions"][0]["winner"]["name"] == "nextjs-workflow"
+
+    django_resolved = load_stdout_json(
+        run(
+            [
+                PYTHON,
+                str(SCRIPTS / "codex_skills.py"),
+                "resolve-project",
+                "examples/projects/django",
+                "--root",
+                "examples",
+                "--global-root",
+                "missing-global-skills",
+                "--json",
+            ]
+        )
+    )
+    assert isinstance(django_resolved, dict)
+    assert django_resolved["project"]["detected"][0]["stack"] == "django"
+    assert django_resolved["resolutions"][0]["winner"]["name"] == "django-workflow"
+
     print("self-test ok")
     return 0
 
