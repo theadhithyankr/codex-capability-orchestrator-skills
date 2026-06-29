@@ -111,7 +111,7 @@ def run_benchmark(spec_path: Path) -> dict[str, Any]:
         raise ValueError("benchmark spec must be an object")
     tasks = _require_list(spec.get("tasks"), "tasks")
     candidates = _require_list(spec.get("candidates"), "candidates")
-    base = spec_path.parent.parent.parent if "examples/benchmark" in spec_path.as_posix() else Path.cwd()
+    base = Path.cwd()
 
     records = []
     for task in tasks:

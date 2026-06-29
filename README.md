@@ -237,6 +237,12 @@ Run the full deterministic self-test suite:
 python capability-orchestrator/scripts/run_self_test.py
 ```
 
+After global installation, test the installed skill copy directly:
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\capability-orchestrator\scripts\run_self_test.py"
+```
+
 The self-test compiles every bundled Python script, inspects valid and invalid example skills, validates candidate and atomic tool manifests, scores benchmark telemetry, checks malformed telemetry failure behavior, verifies harness path safety, and runs a static skill benchmark.
 
 ## Test Existing Skills

@@ -10,8 +10,15 @@ import tempfile
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = ROOT / "capability-orchestrator" / "scripts"
+THIS_FILE = Path(__file__).resolve()
+if THIS_FILE.parents[1].name == "capability-orchestrator":
+    SKILL_ROOT = THIS_FILE.parents[1]
+    ROOT = SKILL_ROOT.parent
+else:
+    ROOT = THIS_FILE.parents[2]
+    SKILL_ROOT = ROOT / "capability-orchestrator"
+SCRIPTS = SKILL_ROOT / "scripts"
+EXAMPLES = SKILL_ROOT / "examples"
 PYTHON = sys.executable
 
 
@@ -34,7 +41,7 @@ def main() -> int:
         compile(script.read_text(encoding="utf-8"), str(script), "exec")
 
     report = load_stdout_json(
-        run([PYTHON, str(SCRIPTS / "inspect_skill.py"), "examples/valid-skill", "--pretty"])
+        run([PYTHON, str(SCRIPTS / "inspect_skill.py"), str(EXAMPLES / "valid-skill"), "--pretty"])
     )
     assert isinstance(report, dict)
     assert report["valid"] is True
@@ -42,7 +49,7 @@ def main() -> int:
     assert report["summary"]["script_count"] == 1
 
     invalid = run(
-        [PYTHON, str(SCRIPTS / "inspect_skill.py"), "examples/invalid-skill-missing-description"],
+        [PYTHON, str(SCRIPTS / "inspect_skill.py"), str(EXAMPLES / "invalid-skill-missing-description")],
         expect=0,
     )
     invalid_report = load_stdout_json(invalid)
@@ -56,7 +63,7 @@ def main() -> int:
             [
                 PYTHON,
                 str(SCRIPTS / "inspect_skill.py"),
-                "examples/valid-skill",
+                str(EXAMPLES / "valid-skill"),
                 "--manifest",
                 "--pretty",
             ]
@@ -73,7 +80,7 @@ def main() -> int:
                 PYTHON,
                 str(SCRIPTS / "validate_manifest.py"),
                 "candidate-skill",
-                "examples/manifests/candidate-valid.json",
+                str(EXAMPLES / "manifests" / "candidate-valid.json"),
             ]
         )
     ) == {"valid": True}
@@ -83,18 +90,18 @@ def main() -> int:
                 PYTHON,
                 str(SCRIPTS / "validate_manifest.py"),
                 "atomic-tool",
-                "examples/manifests/atomic-tool-valid.json",
+                str(EXAMPLES / "manifests" / "atomic-tool-valid.json"),
             ]
         )
     ) == {"valid": True}
 
     scored = load_stdout_json(
-        run([PYTHON, str(SCRIPTS / "score_candidates.py"), "examples/telemetry/good.json"])
+        run([PYTHON, str(SCRIPTS / "score_candidates.py"), str(EXAMPLES / "telemetry" / "good.json")])
     )
     assert isinstance(scored, dict)
     assert scored["winner"] == "valid-example-skill"
 
-    run([PYTHON, str(SCRIPTS / "score_candidates.py"), "examples/telemetry/malformed.json"], expect=2)
+    run([PYTHON, str(SCRIPTS / "score_candidates.py"), str(EXAMPLES / "telemetry" / "malformed.json")], expect=2)
 
     harness = load_stdout_json(
         run(
@@ -127,7 +134,7 @@ def main() -> int:
     )
 
     benchmark = load_stdout_json(
-        run([PYTHON, str(SCRIPTS / "benchmark_skills.py"), "examples/benchmark/static-skills.json"])
+        run([PYTHON, str(SCRIPTS / "benchmark_skills.py"), str(EXAMPLES / "benchmark" / "static-skills.json")])
     )
     assert isinstance(benchmark, dict)
     assert benchmark["ranking"][0]["candidate_id"] == "valid-example-skill"
@@ -138,7 +145,7 @@ def main() -> int:
                 PYTHON,
                 str(SCRIPTS / "scan_global_skills.py"),
                 "--root",
-                "examples",
+                str(EXAMPLES),
                 "--json",
             ],
             expect=1,
@@ -154,7 +161,7 @@ def main() -> int:
                 str(SCRIPTS / "codex_skills.py"),
                 "scan-global",
                 "--root",
-                "examples",
+                str(EXAMPLES),
                 "--json",
             ],
             expect=1,
@@ -170,7 +177,7 @@ def main() -> int:
                 str(SCRIPTS / "resolve_capability.py"),
                 "laravel",
                 "--root",
-                "examples",
+                str(EXAMPLES),
                 "--global-root",
                 "missing-global-skills",
                 "--project-root",
@@ -190,7 +197,7 @@ def main() -> int:
                 "resolve",
                 "laravel",
                 "--root",
-                "examples",
+                str(EXAMPLES),
                 "--global-root",
                 "missing-global-skills",
                 "--project-root",
@@ -211,7 +218,7 @@ def main() -> int:
                     str(SCRIPTS / "resolve_capability.py"),
                     "laravel",
                     "--root",
-                    "examples",
+                    str(EXAMPLES),
                     "--global-root",
                     "missing-global-skills",
                     "--project-root",
@@ -230,7 +237,7 @@ def main() -> int:
         assert (target_root / "laravel-workflow" / "SKILL.md").is_file()
 
     detected = load_stdout_json(
-        run([PYTHON, str(SCRIPTS / "detect_project_stack.py"), "examples/projects/nextjs"])
+        run([PYTHON, str(SCRIPTS / "detect_project_stack.py"), str(EXAMPLES / "projects" / "nextjs")])
     )
     assert isinstance(detected, dict)
     assert detected["detected"][0]["stack"] == "nextjs"
@@ -240,9 +247,9 @@ def main() -> int:
             [
                 PYTHON,
                 str(SCRIPTS / "resolve_project.py"),
-                "examples/projects/nextjs",
+                str(EXAMPLES / "projects" / "nextjs"),
                 "--root",
-                "examples",
+                str(EXAMPLES),
                 "--global-root",
                 "missing-global-skills",
                 "--json",
@@ -259,9 +266,9 @@ def main() -> int:
                 PYTHON,
                 str(SCRIPTS / "codex_skills.py"),
                 "resolve-project",
-                "examples/projects/django",
+                str(EXAMPLES / "projects" / "django"),
                 "--root",
-                "examples",
+                str(EXAMPLES),
                 "--global-root",
                 "missing-global-skills",
                 "--json",
