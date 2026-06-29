@@ -2,7 +2,7 @@
 
 # Codex Capability Orchestrator Skills
 
-**SEO-ready Codex Agent Skills package for capability discovery, MCP registry search, skill benchmarking, dynamic tool integration, and safe test-time tool synthesis.**
+**Codex Agent Skills package for capability discovery, MCP registry search, skill benchmarking, dynamic tool integration, and safe test-time tool synthesis.**
 
 ![Codex Agent Skills](https://img.shields.io/badge/Codex-Agent%20Skills-111111?style=for-the-badge)
 ![Capability Discovery](https://img.shields.io/badge/Capability-Discovery-2563eb?style=for-the-badge)
@@ -25,7 +25,7 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 ## Key Features
 
 - Codex-first Agent Skills package named `capability-orchestrator`
-- SEO-ready repository positioning for `codex-capability-orchestrator-skills`
+- Search-friendly repository positioning for `codex-capability-orchestrator-skills`
 - Progressive-disclosure `SKILL.md` with concise routing instructions
 - Strict Pydantic and Zod schemas for capability gaps, registry results, benchmarks, judge output, TTE specs, and reusable tool manifests
 - Deterministic candidate scoring with weighted benchmark telemetry
