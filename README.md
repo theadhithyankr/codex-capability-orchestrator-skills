@@ -31,10 +31,6 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 - Sandbox harness generation for Python and Node.js test-time tool synthesis
 - Security guidance for untrusted registry metadata, dependency installs, network access, filesystem writes, and host credentials
 
-## SEO Keywords
-
-Codex Capability Orchestrator Skills, Codex Agent Skills, capability orchestrator, AI agent skills, MCP registry, Skilldex, dynamic tool integration, benchmark AI tools, compare agent tools, test-time tool synthesis, TTE, synthesize tools, AI agent capability discovery, sandboxed tool generation, reusable AI tools, agent security boundaries, Codex skill benchmarking, AI tool selection, agent capability registry.
-
 ## Repository Structure
 
 ```text
@@ -53,7 +49,28 @@ capability-orchestrator/
 
 ## Quick Start
 
-Copy or install the `capability-orchestrator` folder into a Codex skills directory, then use it when a task requires missing capability discovery, Codex skill benchmarking, MCP registry comparison, dynamic tool integration, or safe tool synthesis.
+Clone the repository:
+
+```bash
+git clone https://github.com/theadhithyankr/codex-capability-orchestrator-skills.git
+cd codex-capability-orchestrator-skills
+```
+
+Install the skill into your local Codex skills directory:
+
+```bash
+mkdir -p ~/.codex/skills
+cp -R capability-orchestrator ~/.codex/skills/
+```
+
+On Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.codex\skills"
+Copy-Item -Recurse -Force .\capability-orchestrator "$env:USERPROFILE\.codex\skills\"
+```
+
+Use the skill when a task requires missing capability discovery, Codex skill benchmarking, MCP registry comparison, dynamic tool integration, or safe tool synthesis.
 
 Run the helper scripts locally with Python 3.11 or newer:
 
@@ -62,6 +79,15 @@ python capability-orchestrator/scripts/validate_manifest.py candidate-skill mani
 python capability-orchestrator/scripts/score_candidates.py telemetry.json --pretty
 python capability-orchestrator/scripts/synthesize_tool_harness.py --runtime python --entrypoint tool.py --test-command '["python","-m","pytest"]'
 ```
+
+## What This Helps With
+
+- Codex Agent Skills discovery when a required capability is missing
+- MCP registry and Skilldex-style candidate search
+- AI agent tool comparison with benchmark telemetry
+- Test-time tool synthesis for reusable Python or Node.js utilities
+- Sandboxed tool generation with strict security boundaries
+- Reliable agent workflows that reject unverifiable tool behavior
 
 ## Safety Model
 
