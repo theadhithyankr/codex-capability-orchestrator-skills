@@ -43,6 +43,7 @@ Modern AI agents need a disciplined way to decide whether a missing capability s
 │   │   ├── tte-workflow.md
 │   │   └── security-boundaries.md
 │   └── scripts/
+│       ├── inspect_skill.py
 │       ├── score_candidates.py
 │       ├── validate_manifest.py
 │       └── synthesize_tool_harness.py
@@ -108,6 +109,29 @@ python capability-orchestrator/scripts/validate_manifest.py candidate-skill mani
 python capability-orchestrator/scripts/score_candidates.py telemetry.json --pretty
 python capability-orchestrator/scripts/synthesize_tool_harness.py --runtime python --entrypoint tool.py --test-command '["python","-m","pytest"]'
 ```
+
+## Test Existing Skills
+
+Inspect any existing Codex skill folder:
+
+```bash
+python capability-orchestrator/scripts/inspect_skill.py ~/.codex/skills/example-skill --pretty
+```
+
+On Windows PowerShell:
+
+```powershell
+python .\capability-orchestrator\scripts\inspect_skill.py "$env:USERPROFILE\.codex\skills\example-skill" --pretty
+```
+
+Convert an existing skill into a local candidate manifest:
+
+```bash
+python capability-orchestrator/scripts/inspect_skill.py ~/.codex/skills/example-skill --manifest --pretty > candidate.json
+python capability-orchestrator/scripts/validate_manifest.py candidate-skill candidate.json
+```
+
+This checks whether the skill has a valid `SKILL.md`, usable frontmatter, and discoverable bundled resources. Behavioral benchmarking still requires benchmark tasks and telemetry, because a static skill inspection cannot prove whether the skill succeeds on real user work.
 
 ## What This Helps With
 
